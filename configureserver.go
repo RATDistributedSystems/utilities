@@ -24,7 +24,12 @@ var (
 		misc:          make(map[string]string)}
 )
 
-func LoadConfigs(filename string) *Configuration {
+func GetConfigurationFile(f string) *Configuration {
+	PackageConfiguration.loadConfigs(f)
+	return &PackageConfiguration
+}
+
+func (c *Configuration) loadConfigs(filename string) {
 	f, errIO := ioutil.ReadFile(filename)
 	if errIO != nil {
 		log.Panicf("Can't read configuration file %s. Panicing.", filename)
@@ -57,7 +62,6 @@ func LoadConfigs(filename string) *Configuration {
 	for k, v := range misc {
 		PackageConfiguration.misc[k] = v.(string)
 	}
-	return &PackageConfiguration
 }
 
 func (c *Configuration) GetServerDetails(name string) (addr string, protocol string) {
