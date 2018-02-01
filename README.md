@@ -35,7 +35,7 @@ import (
 )
 
 func main() {
-    config := utilities.LoadConfigs("config.json")
+    config := utilities.GetConfigurationFile("config.json")
 
     //to get transaction server details
     addr, protocol := config.GetServerDetails("transaction")
