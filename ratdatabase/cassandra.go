@@ -33,7 +33,7 @@ func executeCassandraQuery(query string, values ...interface{}) {
 	}
 }
 
-func executeSelectCassandraQuery(query string, values ...interface{}) []map[string]interface{} {
+func executeSelectCassandraQuery(query string, values ...interface{}) ([]map[string]interface{}, int) {
 	var m []map[string]interface{}
 	i := cassandraConnection.Query(query, values...).Iter()
 	for {
@@ -43,5 +43,5 @@ func executeSelectCassandraQuery(query string, values ...interface{}) []map[stri
 		}
 		m = append(m, row)
 	}
-	return m
+	return m, len(m)
 }

@@ -6,6 +6,14 @@ import (
 	"strconv"
 )
 
+const (
+	// Query Templates
+	selectStatement = "SELECT %s FROM %s WHERE %s"
+	insertStatement = "INSERT INTO %s (%s) VALUES (%s)"
+	updateStatement = "UPDATE %s SET %s WHERE %s"
+	deleteStatement = "DELETE FROM %s where %s"
+)
+
 // Creates Field1, Field2....
 func createCSVStringFromList(params []string) string {
 	var commaSeparatedList bytes.Buffer
