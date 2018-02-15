@@ -3,22 +3,17 @@ package ratdatabase
 import "github.com/gocql/gocql"
 
 func InsertPendingBuyTransaction(username string, pendCash int, stockName string, stockPrice int) string {
-	qry := createInsertStatement(pendingBuy, stringArray(pendingTID, userid, pendingCash, stock, stockValue))
+	qry := createInsertStatement(pendingBuy, stringArray(pendingTID, userid, pendingcash, stock, stockValue))
 	uuid := gocql.TimeUUID()
-	executeCassandraQuery(qry, uuid, pendCash, stockName, stockPrice)
+	executeCassandraQuery(qry, uuid, username, pendCash, stockName, stockPrice)
 	return uuid.String()
 }
 
-func GetPendingBuyTransaction(username string, uuid string) (leftoverCash int, transExists bool) {
-	qry := createSelectQuery(stringArray(pendingCash), pendingBuy, stringArray(pendingTID, userid))
-	rs, count := executeSelectCassandraQuery(qry, uuid, username)
-
-	if count == 0 {
-		return // use 'zero' values as default (int=0, bool=false, string="")
-	}
-	leftoverCash = castInt(rs[0][pendingCash])
-	transExists = true
-	return
+func BuyTransactionAlive(username string, uuid string) bool {
+	qry := createSelectQuery(countAll, pendingBuy, stringArray(pendingTID, userid))
+	rs, _ := executeSelectCassandraQuery(qry, uuid, username)
+	numTransactions := castInt64(rs[0][count])
+	return numTransactions == 1
 }
 
 func DeletePendingBuyTransaction(username string, uuid string) {
@@ -27,7 +22,7 @@ func DeletePendingBuyTransaction(username string, uuid string) {
 }
 
 func GetLastPendingBuyTransaction(username string) (uuid string, holdingCash int, stockName string, stockPrice int, exists bool) {
-	qry := createSelectQuery(stringArray(pendingTID, pendingCash, stockname, stockValue), pendingBuy, stringArray(userid))
+	qry := createSelectQuery(stringArray(pendingTID, pendingcash, stockname, stockValue), pendingBuy, stringArray(userid))
 	qry = limitQuery(qry, 1)
 	rs, count := executeSelectCassandraQuery(qry, username)
 
@@ -35,7 +30,7 @@ func GetLastPendingBuyTransaction(username string) (uuid string, holdingCash int
 		return
 	}
 	uuid = castString(rs[0][pendingTID])
-	holdingCash = castInt(rs[0][pendingCash])
+	holdingCash = castInt(rs[0][pendingcash])
 	stockName = castString(rs[0][stockname])
 	stockPrice = castInt(rs[0][stockValue])
 	exists = true

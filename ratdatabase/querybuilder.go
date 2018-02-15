@@ -76,6 +76,10 @@ func toString(number int) string {
 }
 
 func castInt(item interface{}) int {
+	return int(item.(int))
+}
+
+func castInt64(item interface{}) int {
 	return int(item.(int64))
 }
 

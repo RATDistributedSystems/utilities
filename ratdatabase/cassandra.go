@@ -2,22 +2,27 @@ package ratdatabase
 
 import (
 	"log"
+	"strconv"
 
 	"github.com/gocql/gocql"
 )
 
-var cassandraConnection *gocql.Session
+var CassandraConnection *gocql.Session
 
 // InitCassandraConnection is called by a server to initialize the connections
-func InitCassandraConnection(hosts []string, keyspace string, protocol int) {
-	cluster := gocql.NewCluster(hosts...)
+func InitCassandraConnection(host string, keyspace string, protocol string) {
+	cluster := gocql.NewCluster(host)
 	cluster.Keyspace = keyspace
-	cluster.ProtoVersion = protocol
+	proto, err := strconv.Atoi(protocol)
+	if err != nil {
+		panic(err)
+	}
+	cluster.ProtoVersion = proto
 	conn, err := cluster.CreateSession()
 	if err != nil {
 		panic(err)
 	}
-	cassandraConnection = conn
+	CassandraConnection = conn
 	log.Println("Connected to Cassandra Cluster")
 }
 
@@ -26,7 +31,7 @@ func InitCassandraConnection(hosts []string, keyspace string, protocol int) {
 // Use the commands.go functions instead
 
 func executeCassandraQuery(query string, values ...interface{}) {
-	q := cassandraConnection.Query(query, values...)
+	q := CassandraConnection.Query(query, values...)
 	err := q.Exec()
 	if err != nil {
 		panic(err)
@@ -35,7 +40,7 @@ func executeCassandraQuery(query string, values ...interface{}) {
 
 func executeSelectCassandraQuery(query string, values ...interface{}) ([]map[string]interface{}, int) {
 	var m []map[string]interface{}
-	i := cassandraConnection.Query(query, values...).Iter()
+	i := CassandraConnection.Query(query, values...).Iter()
 	for {
 		row := make(map[string]interface{})
 		if !i.MapScan(row) {

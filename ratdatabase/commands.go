@@ -13,8 +13,8 @@ const (
 	userstocks  = "userstocks"
 	pendingBuy  = "buypendingtransactions"
 	pendingSell = "sellpendingtransactions"
-	buytrigger  = "buyTriggers"
-	selltrigger = "sellTriggers"
+	buytrigger  = "buytriggers"
+	selltrigger = "selltriggers"
 
 	// Audit Server Tables Names
 	auditusercommands       = "userCommands"
@@ -26,8 +26,8 @@ const (
 
 	// Common Field names
 	userid      = "userid"
-	balance     = "usableCash"
-	pendingCash = "pendingCash"
+	balance     = "usablecash"
+	pendingcash = "pendingcash"
 	count       = "count"
 	pendingTID  = "pid"
 	userstockid = "usid"
@@ -45,7 +45,7 @@ var (
 func UserExists(username string) bool {
 	qry := createSelectQuery(countAll, users, stringArray(userid))
 	rs, _ := executeSelectCassandraQuery(qry, username)
-	count := castInt(rs[0][count])
+	count := castInt64(rs[0][count])
 	return count == 1
 }
 

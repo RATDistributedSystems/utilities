@@ -5,24 +5,18 @@ import (
 )
 
 func InsertPendingSellTransaction(username string, stockName string, pendCash string, stockVal int) string {
-	cols := stringArray(pendingTID, userid, pendingCash, stock, stockValue)
+	cols := stringArray(pendingTID, userid, pendingcash, stock, stockValue)
 	qry := createInsertStatement(pendingSell, cols)
 	uuid := gocql.TimeUUID()
 	executeCassandraQuery(qry, uuid, username, pendCash, stockName, stockVal)
 	return uuid.String()
 }
 
-func GetPendingSellTransaction(username string, uuid string) (saleProfits int, stockVal int, exists bool) {
-	qry := createSelectQuery(stringArray(pendingCash, stockValue), pendingSell, stringArray(pendingTID, userid))
-	rs, count := executeSelectCassandraQuery(qry, uuid, username)
-
-	if count == 0 { // No pending transactions
-		return
-	}
-	saleProfits = castInt(rs[0][pendingCash])
-	stockVal = castInt(rs[0][stockValue])
-	exists = true
-	return
+func SellTransactionAlive(username string, uuid string) bool {
+	qry := createSelectQuery(countAll, pendingSell, stringArray(pendingTID, userid))
+	rs, _ := executeSelectCassandraQuery(qry, uuid, username)
+	numTransactions := castInt64(rs[0][count])
+	return numTransactions == 1
 }
 
 func DeletePendingSellTransaction(username string, uuid string) {
@@ -31,7 +25,7 @@ func DeletePendingSellTransaction(username string, uuid string) {
 }
 
 func GetLastPendingSellTransaction(username string) (uuid string, holdingCash int, stockName string, stockPrice int, exists bool) {
-	qry := createSelectQuery(stringArray(pendingTID, pendingCash, stockname, stockValue), pendingSell, stringArray(userid))
+	qry := createSelectQuery(stringArray(pendingTID, pendingcash, stockname, stockValue), pendingSell, stringArray(userid))
 	qry = limitQuery(qry, 1)
 	rs, count := executeSelectCassandraQuery(qry, username)
 
@@ -39,7 +33,7 @@ func GetLastPendingSellTransaction(username string) (uuid string, holdingCash in
 		return
 	}
 	uuid = castString(rs[0][pendingTID])
-	holdingCash = castInt(rs[0][pendingCash])
+	holdingCash = castInt(rs[0][pendingcash])
 	stockName = castString(rs[0][stockname])
 	stockPrice = castInt(rs[0][stockValue])
 	exists = true
