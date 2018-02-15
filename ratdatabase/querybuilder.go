@@ -11,7 +11,7 @@ const (
 	selectStatement = "SELECT %s FROM %s WHERE %s"
 	insertStatement = "INSERT INTO %s (%s) VALUES (%s)"
 	updateStatement = "UPDATE %s SET %s WHERE %s"
-	deleteStatement = "DELETE FROM %s where %s"
+	deleteStatement = "DELETE FROM %s WHERE %s"
 )
 
 // Creates Field1, Field2....
@@ -81,6 +81,10 @@ func castInt(item interface{}) int {
 
 func castString(item interface{}) string {
 	return item.(string)
+}
+
+func limitQuery(qry string, limit int) string {
+	return fmt.Sprintf("%s LIMIT %d", qry, limit)
 }
 
 func createSelectQuery(columns []string, table string, conditions []string) string {

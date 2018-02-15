@@ -13,16 +13,16 @@ const (
 	userstocks  = "userstocks"
 	pendingBuy  = "buypendingtransactions"
 	pendingSell = "sellpendingtransactions"
-	buyTrigger  = "buyTriggers"
-	sellTrigger = "sellTriggers"
+	buytrigger  = "buyTriggers"
+	selltrigger = "sellTriggers"
 
 	// Audit Server Tables Names
-	auditUserCommands       = "userCommands"
-	auditQuoteRequests      = "quote_server"
-	auditAccountTransaction = "account_transaction"
-	auditSystemEvent        = "system_event"
-	auditErrorEvent         = "error_event"
-	auditDebugEvent         = "debug_event"
+	auditusercommands       = "userCommands"
+	auditquoterequests      = "quote_server"
+	auditaccounttransaction = "account_transaction"
+	auditsystemevent        = "system_event"
+	auditrrrorevent         = "error_event"
+	auditdebugevent         = "debug_event"
 
 	// Common Field names
 	userid      = "userid"
@@ -30,16 +30,17 @@ const (
 	pendingCash = "pendingCash"
 	count       = "count"
 	pendingTID  = "pid"
+	userstockid = "usid"
 	stock       = "stock"
 	stockValue  = "stockValue"
+	stockname   = "stockname"
+	stockamount = "stockamount"
 )
 
 var (
 	// Database Helpers
 	countAll = []string{"COUNT(*)"}
 )
-
-// Add
 
 func UserExists(username string) bool {
 	qry := createSelectQuery(countAll, users, stringArray(userid))
@@ -52,8 +53,6 @@ func CreateUser(username string, cents int) {
 	qry := createInsertStatement(users, stringArray(userid, balance))
 	executeCassandraQuery(qry, username, toString(cents))
 }
-
-// Buy
 
 func GetUserBalance(username string) int {
 	qry := createSelectQuery(stringArray(balance), users, stringArray(userid))
@@ -71,41 +70,41 @@ func UpdateUserBalance(username string, newBalance int) {
 	executeCassandraQuery(qry, newBalance, username)
 }
 
-func InsertPendingBuyTransaction(username string, pendCash int, stockName string, stockVal int) string {
-	qry := createInsertStatement(pendingBuy, stringArray(pendingTID, userid, pendingCash, stock, stockValue))
-	uuid := gocql.TimeUUID()
-	executeCassandraQuery(qry, uuid, pendCash, stockName, stockVal)
-	return uuid.String()
-}
+func GetStockAmountOwned(username string, stockName string) (uuid string, stockAmount int, exists bool) {
+	qry := createSelectQuery(stringArray(stockname, stockamount, userstockid), userstocks, stringArray(userid))
+	rs, _ := executeSelectCassandraQuery(qry, username)
 
-func GetPendingTransactionByUUID(username string, uuid string) (int, int) {
-	qry := createSelectQuery(stringArray(pendingCash), pendingBuy, stringArray(pendingTID, userid))
-	rs, count := executeSelectCassandraQuery(qry, uuid, username)
-	if count == 0 {
-		return 0, 0
+	for _, r := range rs {
+		if r[stockname] == stockName {
+			stockAmount = castInt(r[stockamount])
+			uuid = castString(r[userstockid])
+			exists = true
+			return
+		}
 	}
-	leftoverCash := castInt(rs[0][pendingCash])
-	return leftoverCash, count
+
+	uuid = ""
+	stockAmount = 0
+	exists = false
+	return
 }
 
-func DeletePendingTransaction(username string, uuid string) {
-	qry := createDeleteStatement(pendingBuy, stringArray(userid, pendingTID))
-	executeCassandraQuery(qry, username, uuid)
+func AddStockToPortfolio(username string, stockName string, stockAmount int) {
+	qry := createInsertStatement(userstocks, stringArray(userstockid, userid, stockamount, stockname))
+	uuid, _ := gocql.RandomUUID()
+	executeCassandraQuery(qry, uuid, username, stockAmount, stockName)
 }
 
-// Buy Cancel
-
-// Buy Commit
-
-// Sell
-
-// Sell Cancel
-
-// Sell Commit
+func UpdateUserStockByUUID(uuid string, stockName string, stockAmount int) {
+	qry := createUpdateStatement(userstocks, stringArray(stockamount), stringArray(userstockid))
+	executeCassandraQuery(qry, stockAmount, uuid)
+}
 
 // Buy Set Amount
 
-// Buy Trigger
+/// Sell
+
+// Sell Commit/ Buy Trigger
 
 // Buy Trigger Cancel
 

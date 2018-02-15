@@ -43,5 +43,6 @@ func executeSelectCassandraQuery(query string, values ...interface{}) ([]map[str
 		}
 		m = append(m, row)
 	}
+
 	return m, len(m)
 }
