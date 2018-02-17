@@ -25,16 +25,16 @@ func DeletePendingSellTransaction(username string, uuid string) {
 }
 
 func GetLastPendingSellTransaction(username string) (uuid string, holdingCash int, stockName string, stockPrice int, exists bool) {
-	qry := createSelectQuery(stringArray(pendingTID, pendingcash, stockname, stockValue), pendingSell, stringArray(userid))
+	qry := createSelectQuery(stringArray(pendingTID, pendingcash, stock, stockValue), pendingSell, stringArray(userid))
 	qry = limitQuery(qry, 1)
 	rs, count := executeSelectCassandraQuery(qry, username)
 
 	if count == 0 { // no record to return
 		return
 	}
-	uuid = castString(rs[0][pendingTID])
+	uuid = castUUID(rs[0][pendingTID])
 	holdingCash = castInt(rs[0][pendingcash])
-	stockName = castString(rs[0][stockname])
+	stockName = castString(rs[0][stock])
 	stockPrice = castInt(rs[0][stockValue])
 	exists = true
 	return

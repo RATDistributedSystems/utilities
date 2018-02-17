@@ -32,8 +32,7 @@ const (
 	pendingTID  = "pid"
 	userstockid = "usid"
 	stock       = "stock"
-	stockValue  = "stockValue"
-	stockname   = "stockname"
+	stockValue  = "stockvalue"
 	stockamount = "stockamount"
 )
 
@@ -71,11 +70,11 @@ func UpdateUserBalance(username string, newBalance int) {
 }
 
 func GetStockAmountOwned(username string, stockName string) (uuid string, stockAmount int, exists bool) {
-	qry := createSelectQuery(stringArray(stockname, stockamount, userstockid), userstocks, stringArray(userid))
+	qry := createSelectQuery(stringArray(stock, stockamount, userstockid), userstocks, stringArray(userid))
 	rs, _ := executeSelectCassandraQuery(qry, username)
 
 	for _, r := range rs {
-		if r[stockname] == stockName {
+		if r[stock] == stockName {
 			stockAmount = castInt(r[stockamount])
 			uuid = castString(r[userstockid])
 			exists = true
@@ -90,7 +89,7 @@ func GetStockAmountOwned(username string, stockName string) (uuid string, stockA
 }
 
 func AddStockToPortfolio(username string, stockName string, stockAmount int) {
-	qry := createInsertStatement(userstocks, stringArray(userstockid, userid, stockamount, stockname))
+	qry := createInsertStatement(userstocks, stringArray(userstockid, userid, stockamount, stock))
 	uuid, _ := gocql.RandomUUID()
 	executeCassandraQuery(qry, uuid, username, stockAmount, stockName)
 }

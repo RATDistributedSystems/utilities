@@ -47,7 +47,7 @@ CREATE TABLE userdb.users (
 CREATE TABLE userdb.userstocks (
     usid uuid PRIMARY KEY,
     stockamount int,
-    stockname text,
+    stock text,
     userid text
 ) WITH bloom_filter_fp_chance = 0.01
     AND caching = {'keys': 'ALL', 'rows_per_partition': 'NONE'}

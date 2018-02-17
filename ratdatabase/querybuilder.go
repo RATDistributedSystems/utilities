@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"strconv"
+
+	"github.com/gocql/gocql"
 )
 
 const (
@@ -85,6 +87,11 @@ func castInt64(item interface{}) int {
 
 func castString(item interface{}) string {
 	return item.(string)
+}
+
+func castUUID(item interface{}) string {
+	uuid := item.(gocql.UUID)
+	return uuid.String()
 }
 
 func limitQuery(qry string, limit int) string {

@@ -1,6 +1,8 @@
 package ratdatabase
 
-import "github.com/gocql/gocql"
+import (
+	"github.com/gocql/gocql"
+)
 
 func InsertPendingBuyTransaction(username string, pendCash int, stockName string, stockPrice int) string {
 	qry := createInsertStatement(pendingBuy, stringArray(pendingTID, userid, pendingcash, stock, stockValue))
@@ -22,16 +24,16 @@ func DeletePendingBuyTransaction(username string, uuid string) {
 }
 
 func GetLastPendingBuyTransaction(username string) (uuid string, holdingCash int, stockName string, stockPrice int, exists bool) {
-	qry := createSelectQuery(stringArray(pendingTID, pendingcash, stockname, stockValue), pendingBuy, stringArray(userid))
+	qry := createSelectQuery(stringArray(pendingTID, pendingcash, stock, stockValue), pendingBuy, stringArray(userid))
 	qry = limitQuery(qry, 1)
 	rs, count := executeSelectCassandraQuery(qry, username)
 
 	if count == 0 { // no record to return
 		return
 	}
-	uuid = castString(rs[0][pendingTID])
+	uuid = castUUID(rs[0][pendingTID])
 	holdingCash = castInt(rs[0][pendingcash])
-	stockName = castString(rs[0][stockname])
+	stockName = castString(rs[0][stock])
 	stockPrice = castInt(rs[0][stockValue])
 	exists = true
 	return
