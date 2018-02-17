@@ -76,7 +76,7 @@ func GetStockAmountOwned(username string, stockName string) (uuid string, stockA
 	for _, r := range rs {
 		if r[stock] == stockName {
 			stockAmount = castInt(r[stockamount])
-			uuid = castString(r[userstockid])
+			uuid = castUUID(r[userstockid])
 			exists = true
 			return
 		}

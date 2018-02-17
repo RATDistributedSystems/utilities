@@ -4,7 +4,7 @@ import (
 	"github.com/gocql/gocql"
 )
 
-func InsertPendingSellTransaction(username string, stockName string, pendCash string, stockVal int) string {
+func InsertPendingSellTransaction(username string, stockName string, pendCash int, stockVal int) string {
 	cols := stringArray(pendingTID, userid, pendingcash, stock, stockValue)
 	qry := createInsertStatement(pendingSell, cols)
 	uuid := gocql.TimeUUID()
