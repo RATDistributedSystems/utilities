@@ -64,6 +64,13 @@ func (c *Configuration) loadConfigs(filename string) {
 	}
 }
 
+func (c *Configuration) GetListnerDetails(name string) (addr string, protocol string) {
+	port := c.serverConfigs[name].port
+	addr = fmt.Sprintf(":%s", port)
+	protocol = c.serverConfigs[name].protocol
+	return
+}
+
 func (c *Configuration) GetServerDetails(name string) (addr string, protocol string) {
 	ip := c.serverConfigs[name].address
 	port := c.serverConfigs[name].port
