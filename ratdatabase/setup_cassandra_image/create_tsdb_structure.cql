@@ -1,4 +1,6 @@
-CREATE KEYSPACE userdb WITH replication = {'class': 'SimpleStrategy', 'replication_factor': '1'}  AND durable_writes = true;
+CREATE KEYSPACE userdb WITH replication = {
+    'class': 'SimpleStrategy',
+    'replication_factor': '1'}  AND durable_writes = true;
 
 CREATE TABLE userdb.triggers (
     tid uuid PRIMARY KEY,
@@ -112,11 +114,20 @@ CREATE TABLE userdb.sellpendingtransactions (
     AND read_repair_chance = 0.0
     AND speculative_retry = '99PERCENTILE';
     
-    use userdb;
-create table buyTriggers (tid uuid, userId varchar, stock varchar, pendingCash int, triggerValue int, stockAmount int, pendingStocks int, primary key (userId, stock));
+CREATE TABLE userdb.buyTriggers (
+    tid uuid, 
+    userId varchar,
+    stock varchar, 
+    pendingCash int, 
+    triggerValue int,  
+    primary key (userId, stock));
 
-create table sellTriggers (tid uuid, userId varchar, stock varchar, pendingCash int, triggerValue int, stockAmount int, pendingStocks int, primary key (userId, stock));
-
+CREATE TABLE userdb.sellTriggers (
+    tid uuid, userId varchar, 
+    stock varchar, 
+    triggerValue int, 
+    stockAmount int, 
+    primary key (userId, stock));
 
 CREATE TABLE userdb.usercommands (
     time bigint,
@@ -243,7 +254,6 @@ CREATE TABLE userdb.error_event(
     AND min_index_interval = 128
     AND read_repair_chance = 0.0
     AND speculative_retry = '99PERCENTILE';
-
 
 CREATE TABLE userdb.debug_event(
     time bigint,
