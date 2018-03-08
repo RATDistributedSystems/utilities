@@ -14,7 +14,7 @@ var CassandraConnection *gocql.Session
 func InitCassandraConnection(host string, keyspace string, protocol string) {
 	cluster := gocql.NewCluster(host)
 	cluster.Keyspace = keyspace
-	cluster.ConnectTimeout = time.Second * 10
+	cluster.ConnectTimeout = time.Second * 1
 	proto, err := strconv.Atoi(protocol)
 	if err != nil {
 		panic(err)
