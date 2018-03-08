@@ -137,7 +137,7 @@ CREATE TABLE userdb.usercommands (
     userid text,
     stockSymbol text,
     funds text,
-    PRIMARY KEY((server), transactionNum)
+    PRIMARY KEY((userid), transactionNum)
 ) WITH CLUSTERING ORDER BY (transactionNum ASC)
     AND bloom_filter_fp_chance = 0.01
     AND caching = {'keys': 'ALL', 'rows_per_partition': 'NONE'}
