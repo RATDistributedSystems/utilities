@@ -3,6 +3,7 @@ package ratdatabase
 import (
 	"log"
 	"strconv"
+	"time"
 
 	"github.com/gocql/gocql"
 )
