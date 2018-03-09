@@ -4,6 +4,8 @@ import (
 	"log"
 	"strconv"
 	"time"
+	"strings"
+	"fmt"
 
 	"github.com/gocql/gocql"
 )
