@@ -12,6 +12,9 @@ var CassandraConnection *gocql.Session
 
 // InitCassandraConnection is called by a server to initialize the connections
 func InitCassandraConnection(host string, keyspace string, protocol string) {
+	host_no_space := strings.TrimSpace(host)
+	hosts := strings.Split(host_no_space, ",")
+	fmt.Println(hosts)
 	cluster := gocql.NewCluster(host)
 	cluster.Keyspace = keyspace
 	cluster.ConnectTimeout = time.Second * 1
