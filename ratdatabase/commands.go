@@ -94,7 +94,6 @@ func AddStockToPortfolio(username string, stockName string, stockAmount int) {
 }
 
 func UpdateUserStockByUUID(uuid string, stockName string, stockAmount int) {
-	//error with new update here
 	qry := createUpdateStatement(userstocks, stringArray(stockamount), stringArray(userstockid))
 	executeCassandraQuery(qry, stockAmount, uuid)
 }
