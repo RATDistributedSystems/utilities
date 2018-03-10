@@ -47,10 +47,11 @@ CREATE TABLE userdb.users (
     AND speculative_retry = '99PERCENTILE';
 
 CREATE TABLE userdb.userstocks (
-    usid uuid PRIMARY KEY,
+    usid uuid,
     stockamount int,
     stock text,
-    userid text
+    userid text,
+    PRIMARY KEY((userid),stock)
 ) WITH bloom_filter_fp_chance = 0.01
     AND caching = {'keys': 'ALL', 'rows_per_partition': 'NONE'}
     AND comment = ''
