@@ -38,6 +38,7 @@ func InitCassandraConnection(host string, keyspace string, protocol string) {
 // Use the commands.go functions instead
 
 func executeCassandraQuery(query string, values ...interface{}) {
+	//error with new update here
 	q := CassandraConnection.Query(query, values...)
 	err := q.Exec()
 	if err != nil {

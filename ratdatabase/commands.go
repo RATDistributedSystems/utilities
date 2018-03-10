@@ -2,6 +2,7 @@ package ratdatabase
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/gocql/gocql"
 )
@@ -94,8 +95,14 @@ func AddStockToPortfolio(username string, stockName string, stockAmount int) {
 }
 
 func UpdateUserStockByUUID(uuid string, stockName string, stockAmount int) {
+	//error with new update here
 	qry := createUpdateStatement(userstocks, stringArray(stockamount), stringArray(userstockid))
 	executeCassandraQuery(qry, stockAmount, uuid)
+}
+
+func UpdateUserStockByUserAndStock(userId string, stockName string, stockAmount int){
+	qry := createUpdateStatement(userstocks, stringArray(stockamount), stringArray(userid, stock))
+	executeCassandraQuery(qry,stockAmount,userId,stockName)
 }
 
 // Display summary
