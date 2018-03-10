@@ -2,7 +2,6 @@ package ratdatabase
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/gocql/gocql"
 )
