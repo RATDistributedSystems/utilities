@@ -25,15 +25,17 @@ const (
 	auditdebugevent         = "debug_event"
 
 	// Common Field names
-	userid      = "userid"
-	balance     = "usablecash"
-	pendingcash = "pendingcash"
-	count       = "count"
-	pendingTID  = "pid"
-	userstockid = "usid"
-	stock       = "stock"
-	stockValue  = "stockvalue"
-	stockamount = "stockamount"
+	userid       = "userid"
+	balance      = "usablecash"
+	pendingcash  = "pendingcash"
+	count        = "count"
+	pendingTID   = "pid"
+	pendingTTID  = "tid"
+	userstockid  = "usid"
+	stock        = "stock"
+	stockValue   = "stockvalue"
+	stockamount  = "stockamount"
+	triggervalue = "triggervalue"
 )
 
 var (
@@ -82,9 +84,6 @@ func GetStockAmountOwned(username string, stockName string) (uuid string, stockA
 		}
 	}
 
-	uuid = ""
-	stockAmount = 0
-	exists = false
 	return
 }
 
@@ -99,22 +98,9 @@ func UpdateUserStockByUUID(uuid string, stockName string, stockAmount int) {
 	executeCassandraQuery(qry, stockAmount, uuid)
 }
 
-// Buy Set Amount
-
-/// Sell
-
-// Sell Commit/ Buy Trigger
-
-// Buy Trigger Cancel
-
-// Sell set amount
-
-// Sell Trigger
-
-// Sell Trigger cancel
+func UpdateUserStockByUserAndStock(userId string, stockName string, stockAmount int){
+	qry := createUpdateStatement(userstocks, stringArray(stockamount), stringArray(userid, stock))
+	executeCassandraQuery(qry,stockAmount,userId,stockName)
+}
 
 // Display summary
-
-// Quote Command
-
-// Sell Command

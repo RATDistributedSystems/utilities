@@ -3,6 +3,9 @@ package ratdatabase
 import (
 	"log"
 	"strconv"
+	"time"
+	"strings"
+	"fmt"
 
 	"github.com/gocql/gocql"
 )
@@ -11,8 +14,12 @@ var CassandraConnection *gocql.Session
 
 // InitCassandraConnection is called by a server to initialize the connections
 func InitCassandraConnection(host string, keyspace string, protocol string) {
-	cluster := gocql.NewCluster(host)
+	host_no_space := strings.TrimSpace(host)
+	hosts := strings.Split(host_no_space, ",")
+	fmt.Println(hosts)
+	cluster := gocql.NewCluster(hosts...)
 	cluster.Keyspace = keyspace
+	cluster.ConnectTimeout = time.Second * 1
 	proto, err := strconv.Atoi(protocol)
 	if err != nil {
 		panic(err)
@@ -31,6 +38,7 @@ func InitCassandraConnection(host string, keyspace string, protocol string) {
 // Use the commands.go functions instead
 
 func executeCassandraQuery(query string, values ...interface{}) {
+	//error with new update here
 	q := CassandraConnection.Query(query, values...)
 	err := q.Exec()
 	if err != nil {
