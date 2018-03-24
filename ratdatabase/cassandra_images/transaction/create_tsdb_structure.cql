@@ -19,10 +19,11 @@ CREATE TABLE userdb.users (
 );
 
 CREATE TABLE userdb.userstocks (
-    usid uuid PRIMARY KEY,
+    usid uuid,
     stockamount int,
     stock text,
-    userid text
+    userid text,
+    PRIMARY KEY((userid), stock)
 );
 
 CREATE TABLE userdb.buypendingtransactions (
