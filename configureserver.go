@@ -1,84 +1,141 @@
 package utilities
 
 import (
-	"encoding/json"
+	"bufio"
 	"fmt"
-	"io/ioutil"
 	"log"
+	"os"
+	"strconv"
+	"strings"
+	"time"
 )
 
-type jsonConfiguration struct {
-	address  string
+type address struct {
+	host     string
 	port     string
 	protocol string
 }
 
 type Configuration struct {
-	serverConfigs map[string]jsonConfiguration
+	serverConfigs map[string]address
 	misc          map[string]string
+	docker        bool
 }
 
 var (
-	PackageConfiguration = Configuration{
-		serverConfigs: make(map[string]jsonConfiguration),
+	conf = Configuration{
+		serverConfigs: make(map[string]address),
 		misc:          make(map[string]string)}
+	potentialAddresses = make(map[string]address)
 )
 
-func GetConfigurationFile(f string) *Configuration {
-	PackageConfiguration.loadConfigs(f)
-	return &PackageConfiguration
-}
+func Load() *Configuration {
+	inDocker := os.Getenv("IS_DOCKER")
 
-func (c *Configuration) loadConfigs(filename string) {
-	f, errIO := ioutil.ReadFile(filename)
-	if errIO != nil {
-		log.Panicf("Can't read configuration file %s. Panicing.", filename)
-	}
+	if inDocker != "" {
+		conf.docker = true
+		for _, e := range os.Environ() {
+			if position := strings.Index(e, "PARAM_"); position != -1 {
+				pair := strings.Split(e[position+6:], "=")
+				conf.misc[pair[0]] = pair[1]
 
-	var parsedJSON map[string]interface{}
-	err := json.Unmarshal(f, &parsedJSON)
-	if err != nil {
-		log.Panicf("Can't parse json: %s. Panicing", f)
-	}
-
-	configs := parsedJSON["serverConfigs"].(map[string]interface{})
-	for k, v := range configs {
-		vals := v.(map[string]interface{})
-		jsonTemp := jsonConfiguration{}
-		for i, j := range vals {
-			switch i {
-			case "address":
-				jsonTemp.address = j.(string)
-			case "port":
-				jsonTemp.port = j.(string)
-			case "protocol":
-				jsonTemp.protocol = j.(string)
+				addrConfig := strings.Split(pair[0], "_")
+				addPortAddrProto(addrConfig[0], addrConfig[1], pair[1])
 			}
 		}
-		PackageConfiguration.serverConfigs[k] = jsonTemp
+
+	} else {
+		conf.docker = false
+		f, errIO := os.Open(".env")
+		if errIO != nil {
+			log.Panicf("Can't read configuration file .env. Please place file in current directory")
+		}
+
+		scanner := bufio.NewScanner(f)
+
+		for scanner.Scan() {
+			line := strings.TrimSpace(scanner.Text())
+
+			if position := strings.Index(line, "PARAM_"); position != -1 {
+				params := strings.Split(line[position+6:], "=")
+				conf.misc[params[0]] = params[1]
+
+				addrConfig := strings.Split(params[0], "_")
+				addPortAddrProto(addrConfig[0], addrConfig[1], params[1])
+			}
+		}
+
 	}
 
-	misc := parsedJSON["misc"].(map[string]interface{})
-	for k, v := range misc {
-		PackageConfiguration.misc[k] = v.(string)
+	for k, v := range potentialAddresses {
+		if v.host != "" && v.port != "" && v.protocol != "" {
+			conf.serverConfigs[k] = v
+		}
+	}
+
+	return &conf
+}
+
+func addPortAddrProto(servername string, portOrAddress string, param string) {
+	if portOrAddress == "ADDR" {
+		addr, exists := potentialAddresses[servername]
+		if !exists {
+			addr = address{}
+		}
+
+		addr.host = param
+		potentialAddresses[servername] = addr
+	}
+
+	// Check if it could be a port name
+	if portOrAddress == "PORT" {
+		addr, exists := potentialAddresses[servername]
+		if !exists {
+			addr = address{}
+		}
+
+		addr.port = param
+		potentialAddresses[servername] = addr
+	}
+
+	// Check if it could be a protocol
+	if portOrAddress == "PROTOCOL" {
+		addr, exists := potentialAddresses[servername]
+		if !exists {
+			addr = address{}
+		}
+
+		addr.protocol = param
+		potentialAddresses[servername] = addr
 	}
 }
 
-func (c *Configuration) GetListnerDetails(name string) (addr string, protocol string) {
-	port := c.serverConfigs[name].port
-	addr = fmt.Sprintf(":%s", port)
-	protocol = c.serverConfigs[name].protocol
+func (c Configuration) GetListnerDetails(name string) (addr string, protocol string) {
+	r := c.serverConfigs[strings.ToUpper(name)]
+	addr = fmt.Sprintf(":%s", r.port)
+	protocol = r.protocol
 	return
 }
 
-func (c *Configuration) GetServerDetails(name string) (addr string, protocol string) {
-	ip := c.serverConfigs[name].address
-	port := c.serverConfigs[name].port
-	addr = fmt.Sprintf("%s:%s", ip, port)
-	protocol = c.serverConfigs[name].protocol
+func (c Configuration) GetServerDetails(name string) (addr string, protocol string) {
+	r := c.serverConfigs[strings.ToUpper(name)]
+	addr = fmt.Sprintf("%s:%s", r.host, r.port)
+	protocol = r.protocol
 	return
 }
 
-func (c *Configuration) GetValue(key string) string {
-	return c.misc[key]
+func (c Configuration) GetValue(key string) string {
+	return c.misc[strings.ToUpper(key)]
+}
+
+func (c Configuration) Pause() {
+	if c.docker {
+		sleepTimeInSeconds, err := strconv.Atoi(c.misc["DOCKER_SLEEP"])
+		if err != nil {
+			log.Printf("Invalid sleep time: %s. Sleeping for a 60 seconds", c.misc["DOCKER_SLEEP"])
+			sleepTimeInSeconds = 60
+		}
+		log.Println("Sleeping for %s seconds...", sleepTimeInSeconds)
+		time.Sleep(time.Second * time.Duration(sleepTimeInSeconds))
+	}
 }
