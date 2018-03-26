@@ -46,7 +46,7 @@ func Load() *Configuration {
 
 	} else {
 		conf.docker = false
-		f, errIO := os.Open(".env")
+		f, errIO := os.Open("variable.env")
 		if errIO != nil {
 			log.Panicf("Can't read configuration file .env. Please place file in current directory")
 		}
