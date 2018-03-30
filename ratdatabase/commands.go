@@ -98,9 +98,9 @@ func UpdateUserStockByUUID(uuid string, stockName string, stockAmount int) {
 	executeCassandraQuery(qry, stockAmount, uuid)
 }
 
-func UpdateUserStockByUserAndStock(userId string, stockName string, stockAmount int){
+func UpdateUserStockByUserAndStock(username string, stockName string, stockAmount int) {
 	qry := createUpdateStatement(userstocks, stringArray(stockamount), stringArray(userid, stock))
-	executeCassandraQuery(qry,stockAmount,userId,stockName)
+	executeCassandraQuery(qry, stockAmount, username, stockName)
 }
 
 // Display summary
