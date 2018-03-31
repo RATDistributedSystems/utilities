@@ -87,13 +87,6 @@ func GetStockAmountOwned(username string, stockName string) (uuid string, stockA
 	return
 }
 
-func GetStockAndAmountOwned(username string) ([]map[string]interface{}) {
-	qry := createSelectQuery(stringArray(stock, stockamount), userstocks, stringArray(userid))
-	rs, _ := executeSelectCassandraQuery(qry, username)
-
-	return rs
-}
-
 func AddStockToPortfolio(username string, stockName string, stockAmount int) {
 	qry := createInsertStatement(userstocks, stringArray(userstockid, userid, stockamount, stock))
 	uuid, _ := gocql.RandomUUID()
@@ -111,3 +104,24 @@ func UpdateUserStockByUserAndStock(username string, stockName string, stockAmoun
 }
 
 // Display summary
+
+func GetStockAndAmountOwned(username string) ([]map[string]interface{}) {
+	qry := createSelectQuery(stringArray(stock, stockamount), userstocks, stringArray(userid))
+	rs, _ := executeSelectCassandraQuery(qry, username)
+
+	return rs
+}
+
+func GetSellTriggers(username string) ([]map[string]interface{}) {
+	qry := createSelectQuery(stringArray(stock,stockamount), selltrigger, stringArray(userid))
+	rs, _ := executeSelectCassandraQuery(qry, username)
+	
+	return rs
+}
+
+func GetBuyTriggers(username string) ([]map[string]interface{}){
+	qry := createSelectQuery(stringArray(stock,stockamount), buytrigger, stringArray(userid))
+	rs, _ := executeSelectCassandraQuery(qry, username)
+
+	return rs
+}
