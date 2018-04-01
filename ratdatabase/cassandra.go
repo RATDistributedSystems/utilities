@@ -24,23 +24,19 @@ func InitCassandraConnection(host string, keyspace string, protocol string) {
 	}
 	cluster.ProtoVersion = proto
 
-	connectionAttempts := 10
-	for {
+	for i := 0; i < 10; i++ {
 		conn, err := cluster.CreateSession()
 		if err != nil {
-			if connectionAttempts == 0 {
-				log.Fatalf("Couldn't connect to Cassandra Cluster %s", hostNoSpace)
-			}
 			log.Print("Audit DB not up yet. Waiting 10 more seconds...")
 			time.Sleep(time.Second * 10)
-			connectionAttempts--
 			continue
 		}
 		CassandraConnection = conn
-		break
+		log.Println("Connected to Cassandra Cluster")
+		return
 	}
 
-	log.Println("Connected to Cassandra Cluster")
+	log.Fatalf("Couldn't connect to Cassandra Cluster %s", hostNoSpace)
 }
 
 // Following dhould not be called before InitCassandraConnection
