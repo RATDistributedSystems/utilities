@@ -24,7 +24,7 @@ func InitCassandraConnection(host string, keyspace string, protocol string) {
 	}
 	cluster.ProtoVersion = proto
 	cluster.NumConns = 2 //number of connections per host
-	cluster.RetryPolicy = 0 //retry policy for queries
+	cluster.RetryPolicy = &gocql.SimpleRetryPolicy{NumRetries: 0} //retry policy for queries
 	cluster.MaxPreparedStmts = 1000 //max cache size for prepared statemetns
 	cluster.MaxRoutingKeyInfo = 1000 //max cache size for query info about statements for each session
 	cluster.PageSize = 5000 //page size to use for created sessions
