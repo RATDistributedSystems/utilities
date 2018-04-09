@@ -13,8 +13,11 @@ func InsertPendingBuyTransaction(username string, pendCash int, stockName string
 
 func BuyTransactionAlive(username string, uuid string) bool {
 	qry := createSelectQuery(countAll, pendingBuy, stringArray(pendingTID, userid))
-	rs, _ := executeSelectCassandraQuery(qry, uuid, username)
-	numTransactions := castInt64(rs[0][count])
+	rs, length := executeSelectCassandraQuery(qry, uuid, username)
+	numTransactions := 0
+	if (length > 0){
+		numTransactions = castInt64(rs[0][count])
+	}
 	return numTransactions == 1
 }
 

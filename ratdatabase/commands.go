@@ -44,9 +44,8 @@ var (
 )
 
 func UserExists(username string) bool {
-	qry := createSelectQuery(countAll, users, stringArray(userid))
-	rs, _ := executeSelectCassandraQuery(qry, username)
-	count := castInt64(rs[0][count])
+	qry := createSelectQuery(stringArray(userid), users, stringArray(userid))
+	_, count := executeSelectCassandraQuery(qry, username)
 	return count == 1
 }
 
@@ -58,11 +57,15 @@ func CreateUser(username string, cents int) {
 func GetUserBalance(username string) int {
 	qry := createSelectQuery(stringArray(balance), users, stringArray(userid))
 	rs, count := executeSelectCassandraQuery(qry, username)
+	/*
 	if count != 1 {
-		panic(fmt.Sprintf("No user '%s' found\n", username))
+		fmt.Println(rs[0])
+		fmt.Sprintf("No user '%s' found\n", username)
 	}
-
+	*/
+	fmt.Println(count)
 	balance := castInt(rs[0][balance])
+	fmt.Println(balance)
 	return balance
 }
 
@@ -72,8 +75,8 @@ func UpdateUserBalance(username string, newBalance int) {
 }
 
 func GetStockAmountOwned(username string, stockName string) (uuid string, stockAmount int, exists bool) {
-	qry := createSelectQuery(stringArray(stock, stockamount, userstockid), userstocks, stringArray(userid))
-	rs, _ := executeSelectCassandraQuery(qry, username)
+	qry := createSelectQuery(stringArray(stock, stockamount, userstockid), userstocks, stringArray(userid,stock))
+	rs, _ := executeSelectCassandraQuery(qry, stringArray(username,stockName))
 
 	for _, r := range rs {
 		if r[stock] == stockName {

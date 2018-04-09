@@ -17,14 +17,15 @@ func InitCassandraConnection(host string, keyspace string, protocol string) {
 	hosts := strings.Split(hostNoSpace, ",")
 	cluster := gocql.NewCluster(hosts...)
 	cluster.Keyspace = keyspace
+	cluster.Timeout = time.Second * 1
 	cluster.ConnectTimeout = time.Second * 1
 	proto, err := strconv.Atoi(protocol)
 	if err != nil {
 		panic(err)
 	}
 	cluster.ProtoVersion = proto
-	cluster.NumConns = 2 //number of connections per host
-	cluster.RetryPolicy = &gocql.SimpleRetryPolicy{NumRetries: 0} //retry policy for queries
+	cluster.NumConns = 25 //number of connections per host
+	cluster.RetryPolicy = &gocql.SimpleRetryPolicy{NumRetries: 3} //retry policy for queries
 	cluster.MaxPreparedStmts = 1000 //max cache size for prepared statemetns
 	cluster.MaxRoutingKeyInfo = 1000 //max cache size for query info about statements for each session
 	cluster.PageSize = 5000 //page size to use for created sessions
