@@ -1,7 +1,7 @@
 package ratdatabase
 
 import (
-	"fmt"
+	//"fmt"
 
 	"github.com/gocql/gocql"
 )
@@ -56,16 +56,14 @@ func CreateUser(username string, cents int) {
 
 func GetUserBalance(username string) int {
 	qry := createSelectQuery(stringArray(balance), users, stringArray(userid))
-	rs, count := executeSelectCassandraQuery(qry, username)
+	rs, _ := executeSelectCassandraQuery(qry, username)
 	/*
 	if count != 1 {
 		fmt.Println(rs[0])
 		fmt.Sprintf("No user '%s' found\n", username)
 	}
 	*/
-	fmt.Println(count)
 	balance := castInt(rs[0][balance])
-	fmt.Println(balance)
 	return balance
 }
 
