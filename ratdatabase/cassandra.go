@@ -54,7 +54,7 @@ func executeCassandraQuery(query string, values ...interface{}) {
 	q := CassandraConnection.Query(query, values...)
 	err := q.Exec()
 	if err != nil {
-		panic(err)
+		log.Print(err)
 	}
 }
 
